@@ -7,7 +7,8 @@
     "esxi5@b1": ["esxi5.nopqzip.com", "dyn_flhy0218"],
     "esxi6@b1": ["esxi6.nopqzip.com", "dyn_flhy0218"],
     "esxi7@b1": ["esxi7.nopqzip.com", "dyn_flhy0218"],
-    "esxi@fib": ["esxifib.nopqzip.com","dyn_flhy0218"],
+    "esxi@fib": ["esxifib.nopqzip.com", "dyn_flhy0218"],
+    "usera_whd@esxi2": ["ua.nopqzip.com", "dyn_flhy0218"],
     "vcenter@esxi": ["vcenter.nopqzip.com", "dyn_flhy0218"],
     "odl1@esxi": ["odl1.nopqzip.com", "dyn_flhy0218"],
     "odl2@esxi": ["odl2.nopqzip.com", "dyn_flhy0218"],
@@ -33,8 +34,8 @@
   },
   "config" : {
     "auth": {
-      "username": "hydra",
-      "password": "87o427"
+      "username": "fiblab",
+      "password": "fib10202"
     }
   }
 }
