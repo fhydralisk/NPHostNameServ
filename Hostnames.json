@@ -1,0 +1,40 @@
+{
+  "hostmap": {
+    "esxi1@b1": ["esxi1.nopqzip.com", "dyn_flhy0218"],
+    "esxi2@b1": ["esxi2.nopqzip.com", "dyn_flhy0218"],
+    "esxi3@b1": ["esxi3.nopqzip.com", "dyn_flhy0218"],
+    "esxi4@b1": ["esxi4.nopqzip.com", "dyn_flhy0218"],
+    "esxi5@b1": ["esxi5.nopqzip.com", "dyn_flhy0218"],
+    "esxi6@b1": ["esxi6.nopqzip.com", "dyn_flhy0218"],
+    "esxi7@b1": ["esxi7.nopqzip.com", "dyn_flhy0218"],
+    "esxi@fib": ["esxifib.nopqzip.com","dyn_flhy0218"],
+    "vcenter@esxi": ["vcenter.nopqzip.com", "dyn_flhy0218"],
+    "odl1@esxi": ["odl1.nopqzip.com", "dyn_flhy0218"],
+    "odl2@esxi": ["odl2.nopqzip.com", "dyn_flhy0218"],
+    "odl3@esxi": ["odl3.nopqzip.com", "dyn_flhy0218"],
+    "mn@esxi": ["mn.nopqzip.com", "dyn_flhy0218"]
+  },
+  "dyndnsserver": {
+    "dyn_flhy0218": {
+      "username": "flhy0218",
+      "password": "a7e587801e5511e688ac861f3ba78bc3",
+      "method": "GET",
+      "URL": "https://members.dyndns.org/nic/update?hostname=%host&myip=%ipaddr&wildcard=NOCHG&mx=NOCHG&backmx=NOCHG",
+      "headers": {
+        "user-agent" : "Mellenium Inc. - Router 25001 - 1.1"
+      },
+      "auth": {
+        "username": "flhy0218",
+        "password": "a7e587801e5511e688ac861f3ba78bc3"
+      },
+      "content" : null,
+      "custom-script": null
+    }
+  },
+  "config" : {
+    "auth": {
+      "username": "hydra",
+      "password": "87o427"
+    }
+  }
+}
