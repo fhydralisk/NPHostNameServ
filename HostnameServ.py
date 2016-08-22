@@ -44,6 +44,7 @@ class HostnameServer(HTTPServer):
         self.mapStoreCheckInterval = 10
         self.mapStoreClientDeadTime = 60 * 60
         self.mapStoreClientKillTime = 60 * 60 * 2
+        self.mapStoreDNSUpdateTime = 60 * 60
         # self.mapStoreClientDeadTime = 10
         # self.mapStoreClientKillTime = 20
         self.threadMapStore.setDaemon(True)
@@ -63,6 +64,14 @@ class HostnameServer(HTTPServer):
                     elif v["state"] != self.STATE_DEAD and time.time() - v["last_update"] > self.mapStoreClientDeadTime:
                         hs_log("%s is dying, changing status to DEAD" % k)
                         v["state"] = self.STATE_DEAD
+
+                    elif v["state"] == self.STATE_ACTIVE and time.time() - v["last_dns_update"] > self.mapStoreDNSUpdateTime:
+                        hs_log("%s DNS time out, trying to update DNS record" % k)
+                        try:
+                            self.update_remote_ns(k, v["ip_memory"])
+                        except EnvironmentError:
+                            hs_log("Failed to update NS Record of %s", k)
+
             except:
                 hs_log("Unexcepted error at %s %s" % (__file__, sys._getframe().f_lineno))
             finally:
@@ -82,13 +91,16 @@ class HostnameServer(HTTPServer):
                     self.mapStore[hs_name] = {
                         "ip_memory": ip_addr,
                         "ip": "0.0.0.0",
+                        "hostname": self.mapping["hostmap"][hs_name],
                         "state": self.STATE_UPDATE_PENDING,
-                        "last_update": time.time()
+                        "last_update": time.time(),
+                        "last_dns_update": 0,
                     }
                 else:
                     self.mapStore[hs_name]["ip_memory"] = ip_addr
                     self.mapStore[hs_name]["state"] = self.STATE_UPDATE_PENDING
                     self.mapStore[hs_name]["last_update"] = time.time()
+                    self.mapStore[hs_name]["last_dns_update"] = time.time()
             except:
                 hs_log("Unexcepted error at %s %s" % (__file__, sys._getframe().f_lineno))
             finally:
@@ -119,62 +131,64 @@ class HostnameServer(HTTPServer):
         hs_log("Trying to update %s with ip %s" % (hs_name, ip_addr))
         remote_hs = self.mapping["hostmap"][hs_name]
         dynns_name = remote_hs[0]
-        dynns_serv_name = remote_hs[1]
-        dynns_serv_dict = self.mapping["dyndnsserver"][dynns_serv_name]
-        username = dynns_serv_dict["username"] if "username" in dynns_serv_dict else None
-        password = dynns_serv_dict["password"] if "password" in dynns_serv_dict else None
+        dynns_serv_name_list = remote_hs[1:]
 
-        request_ok = False
-        script_ok = False
+        for dynns_serv_name in dynns_serv_name_list:
+            dynns_serv_dict = self.mapping["dyndnsserver"][dynns_serv_name]
+            username = dynns_serv_dict["username"] if "username" in dynns_serv_dict else None
+            password = dynns_serv_dict["password"] if "password" in dynns_serv_dict else None
 
-        if "URL" in dynns_serv_dict and dynns_serv_dict["URL"] is not None:
-            method = dynns_serv_dict["method"]
-            request = httplib2.Http(timeout=10, disable_ssl_certificate_validation=True)
+            request_ok = False
+            script_ok = False
 
-            headers = None
-            content = None
-            url = self.replace_fields(dynns_serv_dict["URL"],
-                                      dynns_name, ip_addr, username, password)
+            if "URL" in dynns_serv_dict and dynns_serv_dict["URL"] is not None:
+                method = dynns_serv_dict["method"]
+                request = httplib2.Http(timeout=10, disable_ssl_certificate_validation=True)
 
-            if "headers" in dynns_serv_dict:
-                headers = {}
-                headers_orig = dynns_serv_dict["headers"]
-                for k, v in headers_orig.items():
-                    headers[self.replace_fields(k, dynns_name, ip_addr, username, password)] = \
-                        self.replace_fields(v, dynns_name, ip_addr, username, password)
+                headers = None
+                content = None
+                url = self.replace_fields(dynns_serv_dict["URL"],
+                                          dynns_name, ip_addr, username, password)
 
-            if "auth" in dynns_serv_dict:
-                if "username" in dynns_serv_dict["auth"] and "password" in dynns_serv_dict["auth"]:
-                    request.add_credentials(
-                        self.replace_fields(dynns_serv_dict["auth"]["username"],
-                                            dynns_name, ip_addr, username, password),
-                        self.replace_fields(dynns_serv_dict["auth"]["password"],
-                                            dynns_name, ip_addr, username, password)
-                    )
+                if "headers" in dynns_serv_dict:
+                    headers = {}
+                    headers_orig = dynns_serv_dict["headers"]
+                    for k, v in headers_orig.items():
+                        headers[self.replace_fields(k, dynns_name, ip_addr, username, password)] = \
+                            self.replace_fields(v, dynns_name, ip_addr, username, password)
 
-            if method != "GET" and "content" in dynns_serv_dict and dynns_serv_dict["content"] is not None:
-                content = self.replace_fields(dynns_serv_dict["content"],
-                                              dynns_name, ip_addr, username, password)
+                if "auth" in dynns_serv_dict:
+                    if "username" in dynns_serv_dict["auth"] and "password" in dynns_serv_dict["auth"]:
+                        request.add_credentials(
+                            self.replace_fields(dynns_serv_dict["auth"]["username"],
+                                                dynns_name, ip_addr, username, password),
+                            self.replace_fields(dynns_serv_dict["auth"]["password"],
+                                                dynns_name, ip_addr, username, password)
+                        )
 
-            try:
-                response, resp_content = request.request(url, method, content, headers)
-                if response.status in [200, 202, 204]:
-                    request_ok = True
-            except Exception, e:
-                hs_log("Request to Dyn dns failed: %s. Exception: %s" % (hs_name, str(e)))
-                request_ok = False
-        else:
-            request_ok = True
+                if method != "GET" and "content" in dynns_serv_dict and dynns_serv_dict["content"] is not None:
+                    content = self.replace_fields(dynns_serv_dict["content"],
+                                                  dynns_name, ip_addr, username, password)
 
-        if "custom-script" in dynns_serv_dict and dynns_serv_dict["custom-script"] is not None:
-            cmd = self.replace_fields(dynns_serv_dict["custom-script"],
-                                      dynns_name, ip_addr, username, password)
-            status, output = commands.getstatusoutput(cmd)
-            if status == 0:
+                try:
+                    response, resp_content = request.request(url, method, content, headers)
+                    if response.status in [200, 202, 204]:
+                        request_ok = True
+                except Exception, e:
+                    hs_log("Request to Dyn dns failed: %s. Exception: %s" % (hs_name, str(e)))
+                    request_ok = False
+            else:
+                request_ok = True
+
+            if "custom-script" in dynns_serv_dict and dynns_serv_dict["custom-script"] is not None:
+                cmd = self.replace_fields(dynns_serv_dict["custom-script"],
+                                          dynns_name, ip_addr, username, password)
+                status, output = commands.getstatusoutput(cmd)
+                if status == 0:
+                    script_ok = True
+            else:
                 script_ok = True
-        else:
-            script_ok = True
-
+        # FIXME: HOW TO CHECK THIS KIND OF RESULT?
         if not (request_ok and script_ok):
             raise EnvironmentError
 
@@ -213,9 +227,19 @@ class HostnameServer(HTTPServer):
 
         try:
             for v in mapping["hostmap"].values():
+                # FIXME: v[1] may not exist.
+                for ns_node in v[1:]:
+                    if not isinstance(ns_node, basestring):
+                        raise TypeError
+
+                    if ns_node not in mapping["dyndnsserver"]:
+                        hs_log("%s not in dyndns list" % ns_node)
+                        raise KeyError
+                '''
                 if v[1] not in mapping["dyndnsserver"]:
                     hs_log("%s not in dyndns list" % v[1])
                     raise KeyError
+                '''
 
             for k, v in mapping["dyndnsserver"].items():
                 if ("method" not in v or v["method"] not in ["GET", "POST", "PUT", "DELETE"]) \
