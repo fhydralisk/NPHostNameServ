@@ -12,7 +12,12 @@
           "Profile": "Echo",
           "Param": "esxi1"
         }
-      ]
+      ],
+      "Validate": {
+        "MAC": [
+          "b4:b5:2f:39:a0:74"
+        ]
+      }
     },
     "esxi2@b1": {
       "DNS": [
@@ -20,7 +25,12 @@
           "Hostname": "esxi2.nopqzip.com",
           "Profile": "dyn_flhy0218"
         }
-      ]
+      ],
+      "Validate": {
+        "MAC": [
+          "b4:b5:2f:39:b0:60"
+        ]
+      }
     },
     "esxi3@b1": {
       "DNS": [
@@ -28,7 +38,12 @@
           "Hostname": "esxi3.nopqzip.com",
           "Profile": "dyn_flhy0218"
         }
-      ]
+      ],
+      "Validate": {
+        "MAC": [
+          "ac:16:2d:8d:d5:45"
+        ]
+      }
     },
     "esxi4@b1": {
       "DNS": [
@@ -36,7 +51,12 @@
           "Hostname": "esxi4.nopqzip.com",
           "Profile": "dyn_flhy0218"
         }
-      ]
+      ],
+      "Validate": {
+        "MAC": [
+          "b4:b5:2f:39:9e:14"
+        ]
+      }
     },
     "esxi5@b1": {
       "DNS": [
@@ -44,7 +64,12 @@
           "Hostname": "esxi5.nopqzip.com",
           "Profile": "dyn_flhy0218"
         }
-      ]
+      ],
+      "Validate": {
+        "MAC": [
+          "ac:16:2d:8d:dc:14"
+        ]
+      }
     },
     "esxi6@b1": {
       "DNS": [
@@ -52,7 +77,12 @@
           "Hostname": "esxi6.nopqzip.com",
           "Profile": "dyn_flhy0218"
         }
-      ]
+      ],
+      "Validate": {
+        "MAC": [
+          "b4:b5:2f:39:a0:5c"
+        ]
+      }
     },
     "esxi7@b1": {
       "DNS": [
@@ -60,7 +90,12 @@
           "Hostname": "esxi7.nopqzip.com",
           "Profile": "dyn_flhy0218"
         }
-      ]
+      ],
+      "Validate": {
+        "MAC": [
+          "d8:9d:67:13:55:5c"
+        ]
+      }
     },
     "esxi@fib": {
       "DNS": [
@@ -84,7 +119,12 @@
           "Hostname": "vcenter.nopqzip.com",
           "Profile": "dyn_flhy0218"
         }
-      ]
+      ],
+      "Validate": {
+        "MAC": [
+          "00:0c:29:b6:db:d0"
+        ]
+      }
     },
     "odl1@esxi": {
       "DNS": [
@@ -138,7 +178,7 @@
   },
   "scripts": {
     "Echo": {
-      "command": "echo",
+      "command": "/bin/echo",
       "timeout": 0
     }
   },
