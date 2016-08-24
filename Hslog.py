@@ -3,7 +3,7 @@ import traceback, commands
 loggerPath = "/usr/bin/logger"
 
 
-def hs_log(msg, tag="HostnameServ", debug_print=True, debug_trace=True):
+def hs_log(msg, tag="HostnameServ", debug_print=False, debug_trace=True):
 
     if debug_print:
         print msg

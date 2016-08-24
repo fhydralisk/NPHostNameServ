@@ -14,16 +14,29 @@ class HostnameServer(HTTPServer):
 
     def __init__(self, mapfile, *args, **kwargs):
         self.updater = HostnameUpdater(mapfile)
-        self.updater.run_checker()
+        self.updater.run_updater(restart=False)
         HTTPServer.__init__(self, *args, **kwargs)
 
     def handle_hs_message(self, client):
         self.updater.handle_client_heartbeat(client)
 
-    def auth_and_get_status(self, user, passwd):
+    def handle_restart_command(self):
+        self.updater.run_updater(restart=True)
+        return True
+
+    def auth(self, user, passwd):
         config = self.updater.get_config()
         if user == config["auth"]["username"] and passwd == config["auth"]["password"]:
-            return json.dumps(self.updater.get_host_status(), sort_keys=True, indent=4, separators=(',', ': '))
+            return True
+
+        return False
+
+    def get_status_json(self):
+        return json.dumps(self.updater.get_host_status(), sort_keys=True, indent=4, separators=(',', ': '))
+
+    def auth_and_get_status(self, user, passwd):
+        if self.auth(user, passwd):
+            return self.get_status_json()
         else:
             return None
 
@@ -42,6 +55,32 @@ class HostnameRequestHandler(BaseHTTPRequestHandler):
 
         self.end_headers()
 
+    def auth(self, code_succeed=200, content_type_succeed=None, headers_succeed=None):
+        if "authorization" not in self.headers:
+            self.write_common_header(401, other_fields={'WWW-Authenticate':'Basic realm="Test"'})
+            return False
+
+        challenge = self.headers["authorization"]
+        if not challenge.startswith("Basic "):
+            self.send_error(401)
+            return False
+
+        b64up = challenge[len("Basic "):]
+        try:
+            auth = base64.b64decode(b64up)
+            user, passwd = auth.split(':')
+            if self.server.auth(user, passwd):
+                self.write_common_header(code_succeed, content_type=content_type_succeed,
+                                         other_fields=headers_succeed)
+                return True
+            else:
+                self.send_error(401)
+                return False
+
+        except:
+            self.send_error(401)
+            return False
+
     def do_GET(self):
         # print self.path
         path_components = self.path.split("/")
@@ -50,11 +89,11 @@ class HostnameRequestHandler(BaseHTTPRequestHandler):
         else:
             p2 = path_components[1]
             if p2.startswith('?name='):
-                hs_name = p2.replace("?name=","")
+                hs_name = p2.replace("?name=", "")
                 try:
                     self.server.handle_hs_message(HostClient(self.client_address, hs_name, resolve_mac=True))
                 except NameError:
-                    hs_log("Unexist user %s attempt to update ip address %s" % (hs_name, self.client_address[0]))
+                    hs_log("Nonexist user %s attempt to update ip address %s" % (hs_name, self.client_address[0]))
                     self.send_error(404)
                 except EnvironmentError:
                     # dyn server unreachable or custom script exec failed
@@ -67,25 +106,21 @@ class HostnameRequestHandler(BaseHTTPRequestHandler):
                     self.write_common_header()
                     self.wfile.write("OK")
             elif p2 == "state.look":
-                if "authorization" not in self.headers:
-                    self.write_common_header(401, other_fields={'WWW-Authenticate':'Basic realm="Test"'})
-                else:
-                    challenge = self.headers["authorization"]
-                    if not challenge.startswith("Basic "):
-                        self.send_error(401)
-                    challenge = challenge[len("Basic "):]
-                    try :
-                        auth = base64.b64decode(challenge)
-                        user, passwd = auth.split(':')
-                        content = self.server.auth_and_get_status(user, passwd)
-                        if content is not None:
-                            self.write_common_header(200,content_type="application/json")
-                            self.wfile.write(content)
-                        else:
-                            self.send_error(401)
+                if self.auth(code_succeed=200, content_type_succeed="application/json"):
+                    self.wfile.write(self.server.get_status_json())
+            elif p2 == "restart.do":
+                if self.auth(code_succeed=200, content_type_succeed="application/json"):
+                    result = self.server.handle_restart_command()
+                    if result:
+                        ret_rpc = {
+                            "Result": "OK"
+                        }
+                    else:
+                        ret_rpc = {
+                            "Result": "Failed"
+                        }
 
-                    except:
-                        self.send_error(401)
+                    self.wfile.write(json.dumps(ret_rpc, sort_keys=True, indent=4, separators=(',', ': ')))
             else:
                 self.send_error(404)
 

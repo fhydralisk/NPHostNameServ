@@ -1,6 +1,8 @@
 import json, sys, commands, threading, time, httplib2
 from Hslog import hs_log
 
+DNS_TIMEOUT = 10
+
 
 class Host(object):
     STATE_ACTIVE = "Online"
@@ -13,12 +15,13 @@ class Host(object):
     DEFAULT_DEAD_INTERVAL = 900
 
     def __init__(self, hs_name, info, dict_dnss, dict_scripts, dead_interval=None):
-        self.hs_name = hs_name
+        self.hsName = hs_name
         self.dnss = {}
         self.scripts = {}
         self.status = self.STATE_OFFLINE
-        self.last_update = 0
-        self.last_client = None
+        self.lastUpdate = 0
+        self.lastClient = None
+        self.validateMac = None
         self.deadInterval = dead_interval if isinstance(dead_interval, int) else self.DEFAULT_DEAD_INTERVAL
 
         if "DNS" in info:
@@ -43,6 +46,12 @@ class Host(object):
                     "State": self.STATE_UPDATE_NONE
                 }
 
+        if "Validate" in info:
+            validate = info["Validate"]
+            if "MAC" in validate:
+                self.validateMac = \
+                    [m.lower() for m in validate["MAC"] if isinstance(m, basestring) and len(m.split(":")) == 6]
+
     def execute_script(self, script_profile, client):
         script = self.scripts[script_profile]
         script["SCRIPT_OBJ"].execute(script["SCRIPT_PARAM"], client)
@@ -66,60 +75,101 @@ class Host(object):
             "Script": {k: {"last_update": v["UPDATE_TIME"], "State": v["State"]}
                        for k, v in self.scripts.items()},
 
-            "Last_update": self.last_update,
+            "Last_update": self.lastUpdate,
 
         }
-        if self.last_client is not None:
-            ret["last_address"] = {k: v for k, v in self.last_client.get_address().items() if k != "port"}
+        if self.lastClient is not None:
+            ret["last_address"] =\
+                {k: v for k, v in self.lastClient.get_address().items() if k != "port" and v is not None}
 
         return ret
 
     def check_dead(self):
         if self.is_online():
-            if time.time() - self.last_update > self.deadInterval:
+            if time.time() - self.lastUpdate > self.deadInterval:
                 self.status = self.STATE_DEAD
-                hs_log("%s is dying." % self.hs_name)
+                hs_log("%s is dying." % self.hsName)
 
     def is_online(self):
         return self.status in [self.STATE_ACTIVE]
 
+    def validate_client(self, client):
+        if self.validateMac is not None:
+            client_mac = client.get_address()["mac"]
+            if client_mac is None or client_mac not in self.validateMac:
+                return False
+
+        return True
+
     def maybe_refresh_dns_and_scripts(self, force=False, client=None, from_hb=False):
-        client_real = client if client is not None else self.last_client
+        def shall_update(fc, st, ut, runner):
+            return fc or \
+                   (st != self.STATE_UPDATE_PENDING and (st == self.STATE_UPDATE_BAD or
+                                                         runner.is_timeout(ut, time.time())))
+
+        client_real = client if client is not None else self.lastClient
         if client_real is None:
-            hs_log("Trying to refresh a not existing client of %s, how can it happen?" % self.hs_name)
+            hs_log("Trying to refresh a not existing client of %s, how can it happen?" % self.hsName)
             return
-        if not client_real.__eq__(self.last_client):
-            self.last_client = client_real
+        if not client_real.__eq__(self.lastClient):
+            self.lastClient = client_real
             force = True
-            hs_log("Client of %s have changed, updating..." % self.hs_name)
+            hs_log("Client of %s have changed, updating..." % self.hsName)
 
         if from_hb:
-            self.last_update = time.time()
+            self.lastUpdate = time.time()
             self.status = self.STATE_ACTIVE
 
         for profile_name, dict_dns in self.dnss.items():
             dns_obj = dict_dns["DNS_OBJ"]
-            dns_hostname = dict_dns["DNS_HOSTNAME"]
             update_time = dict_dns["UPDATE_TIME"]
             state = dict_dns["State"]
-            if force or state == self.STATE_UPDATE_PENDING or dns_obj.is_timeout(update_time, time.time()):
+            if shall_update(force, state, update_time, dns_obj):
                 if dns_obj.is_timeout(update_time, time.time()):
-                    hs_log("%s DNS timeout, peform updating..." % self.hs_name)
-                dict_dns["State"] = self.STATE_UPDATE_PENDING
-                result = dns_obj.execute(dns_hostname, client_real)
-                if result:
-                    dict_dns["UPDATE_TIME"] = time.time()
-                    dict_dns["State"] = self.STATE_UPDATE_OK
+                    hs_log("%s DNS timeout, perform updating..." % self.hsName)
+                self.perform_dns_update(dict_dns, client_real)
 
         for profile_name, dict_script in self.scripts.items():
             script_obj = dict_script["SCRIPT_OBJ"]
-            script_param = dict_script["SCRIPT_PARAM"]
             update_time = dict_script["UPDATE_TIME"]
-            if force or script_obj.is_timeout(update_time, time.time()):
+            if shall_update(force, self.STATE_UPDATE_OK, update_time, script_obj):
                 if script_obj.is_timeout(update_time, time.time()):
-                    hs_log("%s Script timeout, peform updating..." % self.hs_name)
-                result = script_obj.execute(script_param, client_real)
-                dict_script["State"] = self.STATE_UPDATE_OK if result else self.STATE_UPDATE_BAD
+                    hs_log("%s Script timeout, perform updating..." % self.hsName)
+                self.perform_script_update(script_obj, client_real)
+
+    def perform_dns_update(self, dict_dns, client):
+        def real_update():
+            result = dns_obj.execute(dns_hostname, client)
+            if result:
+                dict_dns["UPDATE_TIME"] = time.time()
+                dict_dns["State"] = self.STATE_UPDATE_OK
+            else:
+                dict_dns["State"] = self.STATE_UPDATE_BAD
+
+        dns_obj = dict_dns["DNS_OBJ"]
+        dns_hostname = dict_dns["DNS_HOSTNAME"]
+        dict_dns["State"] = self.STATE_UPDATE_PENDING
+
+        t = threading.Thread(target=real_update)
+        t.setDaemon(True)
+        t.start()
+
+    def perform_script_update(self, dict_script, client):
+        def real_update():
+            result = script_obj.execute(script_param, client)
+            if result:
+                dict_script["UPDATE_TIME"] = time.time()
+                dict_script["State"] = self.STATE_UPDATE_OK
+            else:
+                dict_script["UPDATE_TIME"] = self.STATE_UPDATE_BAD
+
+        script_obj = dict_script["SCRIPT_OBJ"]
+        script_param = dict_script["SCRIPT_PARAM"]
+        dict_script["State"] = self.STATE_UPDATE_PENDING
+
+        t = threading.Thread(target=real_update)
+        t.setDaemon(True)
+        t.start()
 
 
 class _Runner(object):
@@ -171,7 +221,7 @@ class DNS(_Runner):
         dynns_name = param
         ip_addr = client.get_address()["ip"]
 
-        request = httplib2.Http(timeout=10, disable_ssl_certificate_validation=True)
+        request = httplib2.Http(timeout=DNS_TIMEOUT, disable_ssl_certificate_validation=True)
 
         url = self.replace_fields(url, dynns_name, ip_addr, username, password)
         request_ok = False
@@ -217,6 +267,7 @@ class Script(_Runner):
         self.timeout = info["timeout"]
 
     def execute(self, param, client):
+        # TODO: TIMEOUT SHALL BE TAKEN CARE
         commandline_real = self.commandline + " " + self.replace_fields(param, ipaddr=client.get_address()["ip"])
         status, output = commands.getstatusoutput(commandline_real)
         hs_log("Script %s run, statue=%d, output=%s" % (commandline_real, status, output))
@@ -231,9 +282,13 @@ class HostnameUpdater(object):
         self.dnss = {}
         self.scripts = {}
         self.mapping = {}
+        self.mapFile = filename
         self.threadMapStore = None
         self.checkInterval = self.DEFAULT_CHECK_INTERVAL
-        self.open_mapfile(filename)
+        self.checkerTerminateEvent = threading.Event()
+        self.checkerTerminateEvent.clear()
+
+        self.open_map_file(self.mapFile)
 
     def get_config(self):
         return self.mapping["config"]
@@ -241,7 +296,7 @@ class HostnameUpdater(object):
     def get_host_status(self):
         return {k: v.get_status_all() for k, v in self.hosts.items()}
 
-    def open_mapfile(self, filename):
+    def open_map_file(self, filename):
         try:
             f = open(filename, 'r')
         except IOError:
@@ -279,12 +334,15 @@ class HostnameUpdater(object):
             raise EnvironmentError
 
     def _validate_client(self, client):
-        if client.get_hs_name() in self.hosts:
-            return True
+        if client.get_hs_name() not in self.hosts:
+            return False
+
+        host_obj = self.hosts[client.get_hs_name()]
+        return host_obj.validate_client(client)
 
     def _execute_script_and_nsupdate(self, client):
         if client.get_hs_name() not in self.hosts:
-            # TODO: Now it is a bug
+            # TODO: For now if it has entered here, it is a bug.
             return False
 
         self.hosts[client.get_hs_name()].maybe_refresh_dns_and_scripts(client=client, from_hb=True)
@@ -298,6 +356,10 @@ class HostnameUpdater(object):
 
     def mapstore_checker(self):
         while True:
+            event_is_set = self.checkerTerminateEvent.wait(self.checkInterval)
+            if event_is_set:
+                break
+
             try:
                 for hs_name, host in self.hosts.items():
                     host.check_dead()
@@ -306,4 +368,23 @@ class HostnameUpdater(object):
             except:
                 hs_log("Unexcepted error at %s %s" % (__file__, sys._getframe().f_lineno))
 
-            time.sleep(self.checkInterval)
+    def run_updater(self, restart=False):
+        if restart:
+            if self.threadMapStore is not None:
+                hs_log("Trying to restart Updater. Terminating checker...")
+                self.checkerTerminateEvent.set()
+                self.threadMapStore.join()
+                self.threadMapStore = None
+                self.checkerTerminateEvent.clear()
+                hs_log("Checker terminated, waiting for other threads...")
+                # Wait for dns request to finish
+                time.sleep(DNS_TIMEOUT + 1)
+                self.hosts = {}
+                self.dnss = {}
+                self.scripts = {}
+                self.mapping = {}
+
+                self.open_map_file(self.mapFile)
+                hs_log("Restarted.")
+
+        self.run_checker()

@@ -14,10 +14,8 @@ class HostClient(object):
         ret = {
             "ip": self.ip,
             "port": self.port,
+            "mac": self.mac
         }
-
-        if self.mac is not None:
-            ret["mac"] = self.mac
 
         return ret
 
