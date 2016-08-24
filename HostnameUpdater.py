@@ -137,7 +137,7 @@ class Host(object):
             if shall_update(force, self.STATE_UPDATE_OK, update_time, script_obj):
                 if script_obj.is_timeout(update_time, time.time()):
                     hs_log("%s Script timeout, perform updating..." % self.hsName)
-                self.perform_script_update(script_obj, client_real)
+                self.perform_script_update(dict_script, client_real)
 
     def perform_dns_update(self, dict_dns, client):
         def real_update():
