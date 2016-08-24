@@ -1,19 +1,123 @@
 {
   "hostmap": {
-    "esxi1@b1": ["esxi1.nopqzip.com", "dyn_flhy0218"],
-    "esxi2@b1": ["esxi2.nopqzip.com", "dyn_flhy0218"],
-    "esxi3@b1": ["esxi3.nopqzip.com", "dyn_flhy0218"],
-    "esxi4@b1": ["esxi4.nopqzip.com", "dyn_flhy0218"],
-    "esxi5@b1": ["esxi5.nopqzip.com", "dyn_flhy0218"],
-    "esxi6@b1": ["esxi6.nopqzip.com", "dyn_flhy0218"],
-    "esxi7@b1": ["esxi7.nopqzip.com", "dyn_flhy0218"],
-    "esxi@fib": ["esxifib.nopqzip.com", "dyn_flhy0218"],
-    "usera_whd@esxi2": ["ua.nopqzip.com", "dyn_flhy0218"],
-    "vcenter@esxi": ["vcenter.nopqzip.com", "dyn_flhy0218"],
-    "odl1@esxi": ["odl1.nopqzip.com", "dyn_flhy0218"],
-    "odl2@esxi": ["odl2.nopqzip.com", "dyn_flhy0218"],
-    "odl3@esxi": ["odl3.nopqzip.com", "dyn_flhy0218"],
-    "mn@esxi": ["mn.nopqzip.com", "dyn_flhy0218"]
+    "esxi1@b1": {
+      "DNS": [
+        {
+          "Hostname": "esxi1.nopqzip.com",
+          "Profile": "dyn_flhy0218"
+        }
+      ],
+      "Script": [
+        {
+          "Profile": "Echo",
+          "Param": "esxi1"
+        }
+      ]
+    },
+    "esxi2@b1": {
+      "DNS": [
+        {
+          "Hostname": "esxi2.nopqzip.com",
+          "Profile": "dyn_flhy0218"
+        }
+      ]
+    },
+    "esxi3@b1": {
+      "DNS": [
+        {
+          "Hostname": "esxi3.nopqzip.com",
+          "Profile": "dyn_flhy0218"
+        }
+      ]
+    },
+    "esxi4@b1": {
+      "DNS": [
+        {
+          "Hostname": "esxi4.nopqzip.com",
+          "Profile": "dyn_flhy0218"
+        }
+      ]
+    },
+    "esxi5@b1": {
+      "DNS": [
+        {
+          "Hostname": "esxi5.nopqzip.com",
+          "Profile": "dyn_flhy0218"
+        }
+      ]
+    },
+    "esxi6@b1": {
+      "DNS": [
+        {
+          "Hostname": "esxi6.nopqzip.com",
+          "Profile": "dyn_flhy0218"
+        }
+      ]
+    },
+    "esxi7@b1": {
+      "DNS": [
+        {
+          "Hostname": "esxi7.nopqzip.com",
+          "Profile": "dyn_flhy0218"
+        }
+      ]
+    },
+    "esxi@fib": {
+      "DNS": [
+        {
+          "Hostname": "esxifib.nopqzip.com",
+          "Profile": "dyn_flhy0218"
+        }
+      ]
+    },
+    "usera_whd@esxi2": {
+      "DNS": [
+        {
+          "Hostname": "ua.nopqzip.com",
+          "Profile": "dyn_flhy0218"
+        }
+      ]
+    },
+    "vcenter@esxi": {
+      "DNS": [
+        {
+          "Hostname": "vcenter.nopqzip.com",
+          "Profile": "dyn_flhy0218"
+        }
+      ]
+    },
+    "odl1@esxi": {
+      "DNS": [
+        {
+          "Hostname": "odl1.nopqzip.com",
+          "Profile": "dyn_flhy0218"
+        }
+      ]
+    },
+    "odl2@esxi": {
+      "DNS": [
+        {
+          "Hostname": "odl2.nopqzip.com",
+          "Profile": "dyn_flhy0218"
+        }
+      ]
+    },
+    "odl3@esxi": {
+      "DNS": [
+        {
+          "Hostname": "odl3.nopqzip.com",
+          "Profile": "dyn_flhy0218"
+        }
+      ]
+    },
+    "mn@esxi": {
+      "DNS": [
+        {
+          "Hostname": "mn.nopqzip.com",
+          "Profile": "dyn_flhy0218"
+        }
+      ]
+    }
   },
   "dyndnsserver": {
     "dyn_flhy0218": {
@@ -28,8 +132,14 @@
         "username": "flhy0218",
         "password": "a7e587801e5511e688ac861f3ba78bc3"
       },
-      "content" : null,
-      "custom-script": null
+      "content": null,
+      "timeout": 7200
+    }
+  },
+  "scripts": {
+    "Echo": {
+      "command": "echo",
+      "timeout": 0
     }
   },
   "config" : {

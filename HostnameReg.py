@@ -30,7 +30,6 @@ class HostRegMachine(object):
         except:
             return False
 
-
     def reg_scheduler(self):
 
         next_interval = self.initial_interval
