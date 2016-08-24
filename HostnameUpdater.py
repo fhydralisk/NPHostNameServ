@@ -74,7 +74,7 @@ class Host(object):
     def get_status_all(self, format_time=True):
         ret = {
             "Status": self.status,
-            "DNS": {k: {"hostname": format_time(v["DNS_HOSTNAME"]) if format_time else v["DNS_HOSTNAME"],
+            "DNS": {k: {"hostname": format_timestamp(v["DNS_HOSTNAME"]) if format_time else v["DNS_HOSTNAME"],
                         "last_update": v["UPDATE_TIME"], "State": v["State"]}
                     for k, v in self.dnss.items()},
 
