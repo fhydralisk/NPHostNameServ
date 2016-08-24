@@ -4,6 +4,11 @@ from Hslog import hs_log
 DNS_TIMEOUT = 10
 
 
+def format_timestamp(timestamp):
+    l_time = time.localtime(timestamp + 8 * 60 * 60)
+    return time.strftime("%Y-%m-%d %H:%M:%S", l_time)
+
+
 class Host(object):
     STATE_ACTIVE = "Online"
     STATE_DEAD = "Dead"
@@ -66,16 +71,18 @@ class Host(object):
 
         self.status = state
 
-    def get_status_all(self):
+    def get_status_all(self, format_time=True):
         ret = {
             "Status": self.status,
-            "DNS": {k: {"hostname": v["DNS_HOSTNAME"], "last_update": v["UPDATE_TIME"], "State":v["State"]}
+            "DNS": {k: {"hostname": format_time(v["DNS_HOSTNAME"]) if format_time else v["DNS_HOSTNAME"],
+                        "last_update": v["UPDATE_TIME"], "State":v["State"]}
                     for k, v in self.dnss.items()},
 
-            "Script": {k: {"last_update": v["UPDATE_TIME"], "State": v["State"]}
+            "Script": {k: {"last_update": format_timestamp(v["UPDATE_TIME"]) if format_time else v["UPDATE_TIME"],
+                           "State": v["State"]}
                        for k, v in self.scripts.items()},
 
-            "Last_update": self.lastUpdate,
+            "Last_update": format_timestamp(self.lastUpdate) if format_time else self.lastUpdate,
 
         }
         if self.lastClient is not None:
