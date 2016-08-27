@@ -1,4 +1,5 @@
 import os, sys, json, base64
+import BaseHTTPServer
 from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
 from HostnameUpdater import HostnameUpdater
 from Hslog import hs_log
@@ -16,6 +17,11 @@ class HostnameServer(HTTPServer):
         self.updater = HostnameUpdater(mapfile)
         self.updater.run_updater(restart=False)
         HTTPServer.__init__(self, *args, **kwargs)
+
+    def finish_request(self, request, client_address):
+        request.settimeout(2)
+        # "super" can not be used because BaseServer is not created from object
+        BaseHTTPServer.HTTPServer.finish_request(self, request, client_address)
 
     def handle_hs_message(self, client):
         self.updater.handle_client_heartbeat(client)
