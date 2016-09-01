@@ -150,6 +150,14 @@
         }
       ]
     },
+    "odl-standalone@esxi":{
+      "DNS": [
+        {
+          "Hostname": "odls.nopqzip.com",
+          "Profile": "dyn_flhy0218"
+        }
+      ]
+    },
     "mn@esxi": {
       "DNS": [
         {
