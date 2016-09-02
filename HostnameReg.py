@@ -54,8 +54,6 @@ class HostRegMachine(object):
             time.sleep(next_interval)
 
 
-
-
 def deamon():
     if os.fork() > 0:
         sys.exit(0)

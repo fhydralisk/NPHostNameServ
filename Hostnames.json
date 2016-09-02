@@ -105,6 +105,30 @@
         }
       ]
     },
+    "spark0@b1": {
+      "DNS": [
+        {
+          "Hostname": "spark0.nopqzip.com",
+          "Profile": "dyn_flhy0218"
+        }
+      ]
+    },
+    "spark1@b1": {
+      "DNS": [
+        {
+          "Hostname": "spark1.nopqzip.com",
+          "Profile": "dyn_flhy0218"
+        }
+      ]
+    },
+    "spark2@b1": {
+      "DNS": [
+        {
+          "Hostname": "spark2.nopqzip.com",
+          "Profile": "dyn_flhy0218"
+        }
+      ]
+    },
     "usera_whd@esxi2": {
       "DNS": [
         {
