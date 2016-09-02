@@ -31,6 +31,9 @@ class HostnameServer(HTTPServer):
     def handle_hs_message(self, client):
         self.updater.handle_client_heartbeat(client)
 
+    def handle_wol_message(self, hs_name):
+        return self.updater.handle_wol_message(hs_name)
+
     def handle_restart_command(self):
         self.updater.run_updater(restart=True)
         return True
@@ -132,6 +135,16 @@ class HostnameRequestHandler(BaseHTTPRequestHandler):
                         }
 
                     self.wfile.write(json.dumps(ret_rpc, sort_keys=True, indent=4, separators=(',', ': ')))
+            elif p2.startswith("wol.do?name="):
+                hs_name = p2.replace("wol.do?name=", "")
+                hs_log("Trying to wake %s" % hs_name)
+                result = self.server.handle_wol_message(hs_name)
+                if result:
+                    self.write_common_header(content_type="application/json")
+                    self.wfile.write(json.dumps(result, sort_keys=True, indent=4, separators=(',', ': ')))
+                else:
+                    self.send_error(404)
+
             else:
                 self.send_error(404)
 

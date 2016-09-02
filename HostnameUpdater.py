@@ -306,6 +306,13 @@ class HostnameUpdater(object):
     def get_host_status(self):
         return {k: v.get_status_all() for k, v in self.hosts.items()}
 
+    def get_host_macs(self, hs_name):
+        try:
+            host_obj = self.hosts[hs_name]
+            return host_obj.validateMac
+        except:
+            return None
+
     def open_map_file(self, filename):
         try:
             f = open(filename, 'r')
@@ -342,6 +349,25 @@ class HostnameUpdater(object):
             self._execute_script_and_nsupdate(client)
         else:
             raise EnvironmentError
+
+    def handle_wol_message(self, hs_name):
+        def send_wol_message():
+            for mac in macs:
+                hs_log("WOL: %s" % mac)
+                status, output = commands.getstatusoutput("/opt/bin/python /opt/scripts/WOLSender.py %s" % mac)
+                if status != 0:
+                    hs_log("WOLSender.py failed")
+                else:
+                    hs_log("WOL Sent")
+
+        if hs_name in self.hosts:
+            macs = self.get_host_macs(hs_name)
+            t = threading.Thread(target=send_wol_message)
+            t.setDaemon(True)
+            t.start()
+            return macs
+        else:
+            return None
 
     def _validate_client(self, client):
         if client.get_hs_name() not in self.hosts:
