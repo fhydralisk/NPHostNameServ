@@ -220,7 +220,7 @@
         "password": "a7e587801e5511e688ac861f3ba78bc3"
       },
       "content": null,
-      "timeout": 7200
+      "timeout": 28800
     }
   },
   "scripts": {
