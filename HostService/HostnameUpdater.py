@@ -1,5 +1,11 @@
-import json, sys, commands, threading, time, httplib2
-from Hslog import hs_log
+import commands
+import httplib2
+import json
+import sys
+import threading
+import time
+
+from Utils.Hslog import hs_log
 
 DNS_TIMEOUT = 10
 

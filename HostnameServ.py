@@ -1,14 +1,14 @@
+import BaseHTTPServer
+import base64
+import json
 import os
 import sys
-import json
-import base64
-
-import BaseHTTPServer
 from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
-from HostnameUpdater import HostnameUpdater
-from HostClient import HostClient
 
-from Hslog import hs_log
+from HostClient import HostClient
+from HostnameUpdater import HostnameUpdater
+
+from Utils.Hslog import hs_log
 
 
 def print_usage():
