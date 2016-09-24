@@ -1,5 +1,6 @@
 import time
-import MiscFunc
+
+from Utils import MiscFunc
 
 
 class TempAbstractNode(object):

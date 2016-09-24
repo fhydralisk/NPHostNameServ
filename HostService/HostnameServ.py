@@ -1,8 +1,9 @@
 import BaseHTTPServer
 import base64
 import json
-import os
+import socket
 import sys
+import threading
 from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
 
 from HostClient import HostClient
@@ -21,6 +22,7 @@ class HostnameServer(HTTPServer):
     def __init__(self, mapfile, *args, **kwargs):
         self.updater = HostnameUpdater(mapfile)
         self.updater.run_updater(restart=False)
+        self.serverThread = None
         HTTPServer.__init__(self, *args, **kwargs)
 
     def finish_request(self, request, client_address):
@@ -53,6 +55,30 @@ class HostnameServer(HTTPServer):
             return self.get_status_json()
         else:
             return None
+
+    def start_server(self, n_retries=3, in_thread=True):
+        def start(retries):
+            n = retries
+            while retries > 0:
+                try:
+                    self.serve_forever()
+                except socket.error:
+                    retries -= 1
+                    if retries > 0:
+                        hs_log("Hostname server start failed, retrying...")
+                        continue
+                    else:
+                        hs_log("Hostname server start failed, abort")
+                        break
+
+            hs_log("Hostname Server Thread exiting...")
+
+        if in_thread:
+            self.serverThread = threading.Thread(target=start, args=(n_retries,))
+            self.serverThread.setDaemon(True)
+            self.serverThread.start()
+        else:
+            start(n_retries)
 
 
 class HostnameRequestHandler(BaseHTTPRequestHandler):
@@ -147,43 +173,3 @@ class HostnameRequestHandler(BaseHTTPRequestHandler):
 
             else:
                 self.send_error(404)
-
-
-def deamon():
-    if os.fork() > 0:
-        sys.exit(0)
-
-    os.setsid()
-    os.chdir("/")
-    os.umask(0)
-
-    if os.fork() > 0:
-        sys.exit(0)
-
-    sys.stdout.flush()
-    sys.stderr.flush()
-
-    si = file('/dev/null', 'r')
-    so = file('/dev/null', 'a+')
-    serr = file('/dev/null', 'a+')
-    os.dup2(si.fileno(), sys.stdin.fileno())
-    os.dup2(so.fileno(), sys.stdout.fileno())
-    os.dup2(serr.fileno(), sys.stderr.fileno())
-
-if len(sys.argv) != 4:
-    print_usage()
-    exit(1)
-
-port = int(sys.argv[1])
-mapFile = sys.argv[2]
-deamonlize = sys.argv[3]
-if deamonlize.upper() == "TRUE" or deamonlize.upper() == "YES" or deamonlize == "1":
-    deamon()
-
-hostServer = HostnameServer(mapFile, ('', port), HostnameRequestHandler)
-hs_log("Starting HostnameServer...")
-try:
-    hostServer.serve_forever()
-except:
-    hs_log("HostnameServ deamon unexceptly stopped.")
-    sys.exit(3)

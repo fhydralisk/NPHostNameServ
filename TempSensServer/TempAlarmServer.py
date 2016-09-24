@@ -2,7 +2,7 @@ import struct
 
 from TempAbstractServer import TempAbstractServer
 from TempAlarmNode import TempAlarmNode
-import MiscFunc
+from Utils import MiscFunc
 
 
 class TempAlarmServer(TempAbstractServer):

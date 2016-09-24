@@ -1,10 +1,9 @@
-import json
-import base64
-
 import BaseHTTPServer
+import base64
+import json
 from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
 
-from TsLog import ts_log
+from Utils.TsLog import ts_log
 
 
 def print_usage():

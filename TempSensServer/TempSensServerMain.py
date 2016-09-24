@@ -1,8 +1,9 @@
-import sys
 import os
-from TempSensCoordinator import TempSensCoordinator
-from TsLog import ts_log
+import sys
+
 from ReportInterface import TempSensWebServer, TempSensRequestHandler
+from TempSensCoordinator import TempSensCoordinator
+from Utils.TsLog import ts_log
 
 
 def print_usage():

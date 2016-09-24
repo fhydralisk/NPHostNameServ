@@ -1,0 +1,38 @@
+{
+  "General": {
+    "Daemon": false
+  },
+  "HostnameServer": {
+    "Socket":{
+      "host": "",
+      "port": 8123
+    },
+    "MapFile": "Resources/Hostnames.json"
+  },
+  "TemperatureServer": {
+    "Sensor":{
+      "Socket": {
+        "host":"",
+        "port": 8124
+      }
+    },
+    "Alarm":{
+      "Socket": {
+        "host": "",
+        "port": 8125
+      }
+    },
+    "Rest": {
+      "Socket": {
+        "host": "",
+        "port": 8126
+      }
+    }
+  },
+  "WebUI": {
+    "Socket": {
+      "host": "",
+      "port": 9000
+    }
+  }
+}

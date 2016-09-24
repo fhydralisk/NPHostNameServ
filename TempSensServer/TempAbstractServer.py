@@ -2,8 +2,8 @@ import socket
 import threading
 import time
 
-import MiscFunc
-from TsLog import ts_log
+from Utils import MiscFunc
+from Utils.TsLog import ts_log
 
 
 class AbstractServer(object):

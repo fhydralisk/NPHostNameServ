@@ -1,7 +1,7 @@
+from NodeStateChecker import NodeStateChecker
 from TempAlarmServer import TempAlarmServer
 from TempSensServer import TempSensServer
-from NodeStateChecker import NodeStateChecker
-from TsLog import ts_log
+from Utils.TsLog import ts_log
 
 
 class TempSensCoordinator(object):

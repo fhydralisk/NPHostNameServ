@@ -8,10 +8,10 @@ class Daemonizer(object):
         self.stdout = stdout if stdout is not None else '/dev/null'
         self.stderr = stderr if stderr is not None else '/dev/null'
 
-    def start(self):
+    def start_process(self):
         if self.runDaemon:
             self.daemon()
-        self.main()
+        self.process()
 
     def daemon(self):
         if os.fork() > 0:
@@ -34,5 +34,8 @@ class Daemonizer(object):
         os.dup2(so.fileno(), sys.stdout.fileno())
         os.dup2(serr.fileno(), sys.stderr.fileno())
 
-    def main(self):
+    def process(self):
         pass
+
+    def daemonlize(self):
+        self.daemon()

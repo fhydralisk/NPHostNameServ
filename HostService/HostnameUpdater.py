@@ -5,14 +5,11 @@ import sys
 import threading
 import time
 
+from HostChecker import HostChecker
 from Utils.Hslog import hs_log
+from Utils.MiscFunc import format_timestamp
 
 DNS_TIMEOUT = 10
-
-
-def format_timestamp(timestamp):
-    l_time = time.gmtime(timestamp + 8 * 60 * 60)
-    return time.strftime("%Y-%m-%d %H:%M:%S", l_time)
 
 
 class Host(object):
@@ -299,10 +296,7 @@ class HostnameUpdater(object):
         self.scripts = {}
         self.mapping = {}
         self.mapFile = filename
-        self.threadMapStore = None
-        self.checkInterval = self.DEFAULT_CHECK_INTERVAL
-        self.checkerTerminateEvent = threading.Event()
-        self.checkerTerminateEvent.clear()
+        self.checker = HostChecker(hosts=self.hosts, step_time=self.DEFAULT_CHECK_INTERVAL)
 
         self.open_map_file(self.mapFile)
 
@@ -320,6 +314,7 @@ class HostnameUpdater(object):
             return None
 
     def open_map_file(self, filename):
+        # TODO: Use sqlite instead of a simple json file
         try:
             f = open(filename, 'r')
         except IOError:
@@ -391,33 +386,13 @@ class HostnameUpdater(object):
         return True
 
     def run_checker(self):
-        if self.threadMapStore is None:
-            self.threadMapStore = threading.Thread(target=self.mapstore_checker)
-            self.threadMapStore.setDaemon(True)
-            self.threadMapStore.start()
-
-    def mapstore_checker(self):
-        while True:
-            event_is_set = self.checkerTerminateEvent.wait(self.checkInterval)
-            if event_is_set:
-                break
-
-            try:
-                for hs_name, host in self.hosts.items():
-                    host.check_dead()
-                    if host.is_online():
-                        host.maybe_refresh_dns_and_scripts()
-            except:
-                hs_log("Unexcepted error at %s %s" % (__file__, sys._getframe().f_lineno))
+        self.checker.run_checker()
 
     def run_updater(self, restart=False):
         if restart:
-            if self.threadMapStore is not None:
+            if self.checker.is_running():
                 hs_log("Trying to restart Updater. Terminating checker...")
-                self.checkerTerminateEvent.set()
-                self.threadMapStore.join()
-                self.threadMapStore = None
-                self.checkerTerminateEvent.clear()
+                self.checker.stop_checker(True)
                 hs_log("Checker terminated, waiting for other threads...")
                 # Wait for dns request to finish
                 time.sleep(DNS_TIMEOUT + 1)
@@ -425,6 +400,8 @@ class HostnameUpdater(object):
                 self.dnss = {}
                 self.scripts = {}
                 self.mapping = {}
+
+                self.checker.set_hosts(self.hosts)
 
                 self.open_map_file(self.mapFile)
                 hs_log("Restarted.")
