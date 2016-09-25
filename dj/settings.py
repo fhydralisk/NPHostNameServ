@@ -124,9 +124,3 @@ STATIC_URL = '/static/'
 
 SERVICE_APP_CONFIG = AppOptions("Resources/config.json")
 
-if SERVICE_APP_CONFIG.get_daemon():
-    from Utils.Daemonizer import Daemonizer
-
-    daemon = Daemonizer()
-    daemon.daemonlize()
-

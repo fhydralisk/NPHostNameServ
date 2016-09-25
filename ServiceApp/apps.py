@@ -32,10 +32,10 @@ class RealApps(object):
 
 class ServiceappConfig(AppConfig):
     name = 'ServiceApp'
-
+    is_ready = False
+    
     def __init__(self, *args, **kwargs):
         self.appServerHolder = RealApps()
-        self.is_ready = False
         AppConfig.__init__(self, *args, **kwargs)
 
     def ready(self):
