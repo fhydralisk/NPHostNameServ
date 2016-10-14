@@ -1,4 +1,10 @@
-import json, sys, commands, threading, time, httplib2
+import json
+import sys
+import commands
+import threading
+import time
+import httplib2
+from DB import DB
 from Hslog import hs_log
 
 DNS_TIMEOUT = 10
@@ -7,6 +13,20 @@ DNS_TIMEOUT = 10
 def format_timestamp(timestamp):
     l_time = time.gmtime(timestamp + 8 * 60 * 60)
     return time.strftime("%Y-%m-%d %H:%M:%S", l_time)
+
+
+class HostDB(DB):
+    def __init__(self, hostname='', user='root', password=None, unix_socket=None):
+        DB.__init__(self, hostname, user, password, 'HostDB', unix_socket)
+
+    def get_hosts(self):
+        pass
+
+    def get_dns(self):
+        pass
+
+    def get_script(self):
+        pass
 
 
 class Host(object):
