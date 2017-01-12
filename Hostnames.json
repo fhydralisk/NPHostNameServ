@@ -152,6 +152,14 @@
         }
       ]
     },
+    "Hadoop0_whd@esxi1": {
+      "DNS": [
+        {
+          "Hostname": "uc.nopqzip.com",
+          "Profile": "dyn_flhy0218"
+        }
+      ]
+    },
     "vcenter@esxi": {
       "DNS": [
         {
@@ -204,6 +212,34 @@
           "Profile": "dyn_flhy0218"
         }
       ]
+    },
+    "hydrambp1": {
+      "DNS": [
+        {
+	  "Hostname": "hydrambp1.nopqzip.com",
+	  "Profile": "dyn_flhy0218"
+	}
+      ],
+      "Validate": {
+        "MAC": [
+	  "f4:0f:24:22:92:6a",
+	  "ee:00:94:19:d1:00"
+	]
+      }
+    },
+    "hydrambp2": {
+      "DNS": [
+        {
+	  "Hostname": "hydrambp2.nopqzip.com",
+	  "Profile": "dyn_flhy0218"
+	}
+      ],
+      "Validate": {
+        "MAC": [
+	  "68:5b:35:9a:94:7b",
+	  "a4:5e:60:e3:a1:c7"
+	]
+      }
     }
   },
   "dyndnsserver": {
