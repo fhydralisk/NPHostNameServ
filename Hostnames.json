@@ -160,6 +160,14 @@
         }
       ]
     },
+    "sparkagent@esxi6": {
+      "DNS": [
+        {
+          "Hostname": "sparkagent.nopqzip.com",
+          "Profile": "dyn_flhy0218"
+        }
+      ]
+    },
     "vcenter@esxi": {
       "DNS": [
         {
@@ -216,17 +224,17 @@
     "hydrambp1": {
       "DNS": [
         {
-	  "Hostname": "hydrambp1.nopqzip.com",
-	  "Profile": "dyn_flhy0218"
-	}
+          "Hostname": "hydrambp1.nopqzip.com",
+          "Profile": "dyn_flhy0218"
+        }
       ]
     },
     "hydrambp2": {
       "DNS": [
         {
-	  "Hostname": "hydrambp2.nopqzip.com",
-	  "Profile": "dyn_flhy0218"
-	}
+          "Hostname": "hydrambp2.nopqzip.com",
+          "Profile": "dyn_flhy0218"
+        }
       ]
     }
   },
