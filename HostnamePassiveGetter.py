@@ -27,15 +27,15 @@ class HostnamePassiveGetter(object):
                             if "mac_address_maybe" in v and v["Status"] != "Online"}
 
         try:
-            results = json.loads(self.rpc_http_get("/?mac=%s" % ",".join(mac_host_offline.values()),
+            results = json.loads(self.rpc_http_get("/?mac=%s" % ",".join([e[0] for e in mac_host_offline.values()]),
                                                    self.config["rpc_hostname"],
                                                    self.config["rpc_port"], None,
                                                    self.config["rpc_timeout"]))
-            for i in range(len(results)):
-                result = results[i]
+            for i in range(len(results["Result"])):
+                result = results["Result"][i]
                 if isinstance(result, dict):
                     self.updater.handle_client_heartbeat(
-                        HostClient((result.keys()[0], 1234), mac_host_offline.keys()[i], mac=mac_host_offline.values()[i])
+                        HostClient((result.keys()[0], 1234), mac_host_offline.keys()[i], mac=mac_host_offline.values()[i][0])
                     )
         except ValueError:
             hs_log("Cannot parse json result of passive getter rpc")
