@@ -239,6 +239,19 @@
     },
     "xsrubuntu": {
 
+    },
+    "wins@b1": {
+      "DNS": [
+        {
+          "Hostname": "win-server.nopqzip.com",
+          "Profile": "dyn_flhy0218"
+        }
+      ],
+      "Validate": {
+        "MAC": [
+          "94:18:82:01:d8:24"
+        ]
+      }
     }
   },
   "dyndnsserver": {
