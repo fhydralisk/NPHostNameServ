@@ -7,6 +7,7 @@ import BaseHTTPServer
 from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
 from HostnameUpdater import HostnameUpdater
 from HostClient import HostClient
+from HostnamePassiveGetter import HostnamePassiveGetter
 
 from Hslog import hs_log
 
@@ -18,9 +19,8 @@ def print_usage():
 
 class HostnameServer(HTTPServer):
 
-    def __init__(self, mapfile, *args, **kwargs):
-        self.updater = HostnameUpdater(mapfile)
-        self.updater.run_updater(restart=False)
+    def __init__(self, upd, *args, **kwargs):
+        self.updater = upd
         HTTPServer.__init__(self, *args, **kwargs)
 
     def finish_request(self, request, client_address):
@@ -180,7 +180,11 @@ deamonlize = sys.argv[3]
 if deamonlize.upper() == "TRUE" or deamonlize.upper() == "YES" or deamonlize == "1":
     deamon()
 
-hostServer = HostnameServer(mapFile, ('', port), HostnameRequestHandler)
+updater = HostnameUpdater(mapFile)
+updater.run_updater(restart=False)
+passiveGetter = HostnamePassiveGetter(mapFile, updater)
+passiveGetter.run_getter()
+hostServer = HostnameServer(updater, ('', port), HostnameRequestHandler)
 hs_log("Starting HostnameServer...")
 try:
     hostServer.serve_forever()

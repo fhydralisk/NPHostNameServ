@@ -2,11 +2,11 @@ import commands
 
 
 class HostClient(object):
-    def __init__(self, address, hs_name, resolve_mac=False):
+    def __init__(self, address, hs_name, resolve_mac=False, mac=None):
         self.ip = address[0]
         self.port = address[1]
         self.hs_name = hs_name
-        self.mac = None
+        self.mac = mac
         if resolve_mac:
             self.mac = self.resolve_mac(self.ip)
 

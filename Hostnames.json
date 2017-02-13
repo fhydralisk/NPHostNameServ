@@ -236,9 +236,6 @@
           "Profile": "dyn_flhy0218"
         }
       ]
-    },
-    "xsrubuntu": {
-      
     }
   },
   "dyndnsserver": {
@@ -268,6 +265,12 @@
     "auth": {
       "username": "fiblab",
       "password": "fib10202"
+    },
+    "PassiveGetter": {
+      "rpc_hostname": "odls.nopqzip.com",
+      "rpc_port": 8111,
+      "rpc_timeout": 1.0,
+      "rpc_query_interval": 300
     }
   }
 }

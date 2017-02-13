@@ -89,7 +89,7 @@ class Host(object):
         if self.lastClient is not None:
             ret["last_address"] =\
                 {k: v for k, v in self.lastClient.get_address().items() if k != "port" and v is not None}
-        elif self.validateMac is not None:
+        if self.validateMac is not None:
             ret["mac_address_maybe"] = self.validateMac
 
         return ret
