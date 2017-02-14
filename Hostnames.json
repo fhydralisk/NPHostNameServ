@@ -252,6 +252,19 @@
           "94:18:82:01:d8:24"
         ]
       }
+    },
+    "sparkagent": {
+      "DNS": [
+        {
+          "Hostname": "sparkagent2.nopqzip.com",
+          "Profile": "dyn_flhy0218"
+        }
+      ],
+      "Validate": {
+        "MAC": [
+          "00:50:56:a1:ff:cb"
+        ]
+      }
     }
   },
   "dyndnsserver": {
