@@ -265,6 +265,19 @@
           "00:50:56:a1:ff:cb"
         ]
       }
+    },
+    "printer@lab": {
+      "DNS": [
+        {
+          "Hostname": "printer.nopqzip.com",
+          "Profile": "dyn_flhy0218"
+        }
+      ],
+      "Validate": {
+        "MAC": [
+          "f0:13:52:3f:8e:5a"
+        ]
+      }
     }
   },
   "dyndnsserver": {
