@@ -16,9 +16,12 @@ class HostnamePassiveGetter(object):
         self.daemonThread = None
 
     def daemon(self):
-        while True:
-            time.sleep(self.config["rpc_query_interval"])
-            self.query_for_dead_offline()
+        try:
+            while True:
+                time.sleep(self.config["rpc_query_interval"])
+                self.query_for_dead_offline()
+        except Exception, e:
+            hs_log("PassiveGetter has exited due to unhandled exception %s" % str(e))
 
     def query_for_dead_offline(self):
         host_status = self.updater.get_host_status()
