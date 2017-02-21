@@ -29,6 +29,9 @@ class HostnamePassiveGetter(object):
                             for k, v in host_status.items()
                             if "mac_address_maybe" in v and v["Status"] != "Online"}
 
+        if len(mac_host_offline) == 0:
+            return
+
         try:
             results = json.loads(self.rpc_http_get("/?mac=%s" % ",".join([e[0] for e in mac_host_offline.values()]),
                                                    self.config["rpc_hostname"],

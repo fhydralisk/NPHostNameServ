@@ -105,45 +105,6 @@
         }
       ]
     },
-    "spark0@b1": {
-      "DNS": [
-        {
-          "Hostname": "spark0.nopqzip.com",
-          "Profile": "dyn_flhy0218"
-        }
-      ],
-      "Validate": {
-        "MAC": [
-          "3c:a8:2a:1d:ff:7c"
-        ]
-      }
-    },
-    "spark1@b1": {
-      "DNS": [
-        {
-          "Hostname": "spark1.nopqzip.com",
-          "Profile": "dyn_flhy0218"
-        }
-      ],
-      "Validate": {
-        "MAC": [
-          "3c:a8:2a:1d:0f:18"
-        ]
-      }
-    },
-    "spark2@b1": {
-      "DNS": [
-        {
-          "Hostname": "spark2.nopqzip.com",
-          "Profile": "dyn_flhy0218"
-        }
-      ],
-      "Validate": {
-        "MAC": [
-          "3c:a8:2a:0e:70:60"
-        ]
-      }
-    },
     "usera_whd@esxi2": {
       "DNS": [
         {
@@ -229,14 +190,6 @@
         }
       ]
     },
-    "hydrambp2": {
-      "DNS": [
-        {
-          "Hostname": "hydrambp2.nopqzip.com",
-          "Profile": "dyn_flhy0218"
-        }
-      ]
-    },
     "xsrubuntu": {
 
     },
@@ -263,19 +216,6 @@
       "Validate": {
         "MAC": [
           "00:50:56:a1:ff:cb"
-        ]
-      }
-    },
-    "printer@lab": {
-      "DNS": [
-        {
-          "Hostname": "printer.nopqzip.com",
-          "Profile": "dyn_flhy0218"
-        }
-      ],
-      "Validate": {
-        "MAC": [
-          "f0:13:52:3f:8e:5a"
         ]
       }
     }
