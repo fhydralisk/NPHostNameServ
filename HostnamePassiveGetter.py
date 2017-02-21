@@ -37,7 +37,7 @@ class HostnamePassiveGetter(object):
                                                    self.config["rpc_hostname"],
                                                    self.config["rpc_port"], None,
                                                    self.config["rpc_timeout"]))
-            for i in range(len(results["Result"])):
+            for i in range(len(mac_host_offline)):
                 result = results["Result"][i]
                 if isinstance(result, dict):
                     self.updater.handle_client_heartbeat(

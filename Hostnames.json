@@ -252,7 +252,7 @@
       "rpc_hostname": "odls.nopqzip.com",
       "rpc_port": 8111,
       "rpc_timeout": 1.0,
-      "rpc_query_interval": 300
+      "rpc_query_interval": 100
     }
   }
 }
