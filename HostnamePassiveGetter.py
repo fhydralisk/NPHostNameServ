@@ -16,12 +16,13 @@ class HostnamePassiveGetter(object):
         self.daemonThread = None
 
     def daemon(self):
-        try:
-            while True:
+
+        while True:
+            try:
                 time.sleep(self.config["rpc_query_interval"])
                 self.query_for_dead_offline()
-        except Exception, e:
-            hs_log("PassiveGetter has exited due to unhandled exception %s" % str(e))
+            except Exception, e:
+                hs_log("unhandled exception %s in passive getter daemon" % str(e))
 
     def query_for_dead_offline(self):
         host_status = self.updater.get_host_status()
@@ -47,6 +48,8 @@ class HostnamePassiveGetter(object):
             hs_log("Cannot parse json result of passive getter rpc")
         except socket.timeout:
             hs_log("rpc timeout of passive getter")
+        except socket.gaierror:
+            hs_log("cannot resolve name of passive getter server")
 
     def run_getter(self):
         if self.daemonThread is None:
