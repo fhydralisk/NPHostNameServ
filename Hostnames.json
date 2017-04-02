@@ -218,6 +218,19 @@
           "00:50:56:a1:ff:cb"
         ]
       }
+    },
+    "deeplearning@b1": {
+      "DNS": [
+        {
+          "Hostname": "dl.nopqzip.com",
+          "Profile": "dyn_flhy0218"
+        }
+      ],
+      "Validate": {
+        "MAC": [
+          "28:f3:66:b4:81:3b"
+        ]
+      }
     }
   },
   "dyndnsserver": {
