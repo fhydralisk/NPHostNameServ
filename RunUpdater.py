@@ -33,7 +33,7 @@ def daemon():
     os.dup2(serr.fileno(), sys.stderr.fileno())
 
 
-if len(sys.argv) != 4:
+if len(sys.argv) < 2:
     print_usage()
     exit(1)
 
