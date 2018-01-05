@@ -18,9 +18,10 @@ class HostnamePassiveGetter(object):
         while True:
             try:
                 self.get_passive_ips()
-                time.sleep(self.config["rpc_query_interval"])
             except Exception, e:
                 hs_log("unhandled exception %s in passive getter daemon" % str(e))
+
+            time.sleep(self.config["rpc_query_interval"])
 
     def get_passive_ips(self):
         passive_clients = self.updater.get_all_passive_clients()
@@ -36,7 +37,7 @@ class HostnamePassiveGetter(object):
             for client, ip_ts in zip(passive_clients, ips):
                 if isinstance(ip_ts, dict):
                     self.updater.handle_client_heartbeat(
-                        HostClient((ip_ts.keys()[0], 1234), client.name, mac=client.validateMac),
+                        HostClient((ip_ts.keys()[0], 1234), client.name, mac=client.validateMac[0]),
                         is_proactive=False
                     )
         except ValueError:
