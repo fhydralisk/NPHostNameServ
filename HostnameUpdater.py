@@ -97,33 +97,34 @@ class HostnameUpdater(object):
         while True:
             self.dnsUpdateEvent.wait(self.config["DNS_BATCH_UPDATE_INTERVAL"])
             update_hosts = self._get_all_from_update_queue()
-            # performs unzip to build names and ips from hosts
-            names, ips = zip(*[(host.name, host.lastIp) for host in update_hosts])
-            name_to_host = {host.name: host for host in update_hosts}
+            if len(update_hosts) > 0:
+                # performs unzip to build names and ips from hosts
+                names, ips = zip(*[(host.name, host.lastIp) for host in update_hosts])
+                name_to_host = {host.name: host for host in update_hosts}
 
-            # Prevent empty updating
-            if len(names) > 0:
-                for host in update_hosts:
-                    host.ns_setstate_try_update()
-
-                try:
-                    update_results = self.connector.update_dns(names, ips)
-                    if update_results is not None and "Result" in update_results and update_results["Result"] == "OK":
-                        # Update DNS Update state for these nodes.
-                        for name, result in update_results["Result Map"].items():
-                            if result == "OK":
-                                name_to_host[name].ns_setstate_updated()
-                            else:
-                                name_to_host[name].ns_setstate_bad_update(result)
-                    else:
-                        # Failed to update
-                        for host in update_hosts:
-                            host.ns_setstate_bad_update("Error when receiving result of rpc.")
-
-                except Exception, e:
+                # Prevent empty updating
+                if len(names) > 0:
                     for host in update_hosts:
-                        host.ns_setstate_bad_update("Unexpected exception" + str(e))
-                    hs_log("Unexpected exception " + str(e) + " occurred in DNS perform update thread.")
+                        host.ns_setstate_try_update()
+
+                    try:
+                        update_results = self.connector.update_dns(names, ips)
+                        if update_results is not None and "Result" in update_results and update_results["Result"] == "OK":
+                            # Update DNS Update state for these nodes.
+                            for name, result in update_results["Result Map"].items():
+                                if result == "OK":
+                                    name_to_host[name].ns_setstate_updated()
+                                else:
+                                    name_to_host[name].ns_setstate_bad_update(result)
+                        else:
+                            # Failed to update
+                            for host in update_hosts:
+                                host.ns_setstate_bad_update("Error when receiving result of rpc.")
+
+                    except Exception, e:
+                        for host in update_hosts:
+                            host.ns_setstate_bad_update("Unexpected exception" + str(e))
+                        hs_log("Unexpected exception " + str(e) + " occurred in DNS perform update thread.")
 
     def _thread_host_checker(self):
         """
