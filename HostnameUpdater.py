@@ -46,7 +46,7 @@ class HostnameUpdater(object):
                         clientname,
                         clientconfig["MAC"] if "MAC" in clientconfig else None,
                         self.config["DEAD_INTERVAL"],
-                        clientconfig("is_proactive")
+                        clientconfig["is_proactive"]
                     )
                 except KeyError:
                     hs_log("Key error in client config " + str(clientconfig))
