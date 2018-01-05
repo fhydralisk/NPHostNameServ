@@ -220,7 +220,7 @@ class HostnameUpdater(object):
         self.run_dns_updater()
 
     def get_all_passive_clients(self):
-        return [host for host in self.hosts if not host.is_proactive]
+        return [host for host in self.hosts.values() if not host.is_proactive]
 
     def get_all_proactive_clients(self):
-        return [host for host in self.hosts if host.is_proactive]
+        return [host for host in self.hosts.values() if host.is_proactive]
