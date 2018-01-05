@@ -12,6 +12,7 @@ class HostnameUpdater(object):
         self.hosts = {}
         self.clients = {}
         self.threadMapStore = None
+        self.threadPerformUpdate = None
         self.checkInterval = self.DEFAULT_CHECK_INTERVAL
         self.checkerTerminateEvent = threading.Event()
         self.checkerTerminateEvent.clear()
@@ -200,10 +201,10 @@ class HostnameUpdater(object):
             self.threadMapStore.start()
 
     def run_dns_updater(self):
-        if self.threadMapStore is None:
-            self.threadMapStore = threading.Thread(target=self._thread_perform_update)
-            self.threadMapStore.setDaemon(True)
-            self.threadMapStore.start()
+        if self.threadPerformUpdate is None:
+            self.threadPerformUpdate = threading.Thread(target=self._thread_perform_update)
+            self.threadPerformUpdate.setDaemon(True)
+            self.threadPerformUpdate.start()
 
     def run_updater(self, restart=False):
         if restart:
