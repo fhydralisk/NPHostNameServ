@@ -23,6 +23,8 @@ class HostnameUpdater(object):
         # if the serial changes, it indicates the client db is changed and shall be updated.
         self.serial = 0
         self.last_serial_check = 0
+        self.serialUpdateEvent = threading.Event()
+        self.serialUpdateEvent.clear()
 
     def _fetch_clients(self):
         resp = self.connector.get_clients()
@@ -67,6 +69,7 @@ class HostnameUpdater(object):
             if resp["serial"] != self.serial:
                 # perform host update
                 self._fetch_clients()
+                self.serialUpdateEvent.set()
 
     def _put_into_update_queue(self, host):
         self._cache_update_lock.acquire()

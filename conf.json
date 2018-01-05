@@ -37,7 +37,7 @@
     "BAD_RETRY_INTERVAL": 300,
     "PENDING_RETRY_INTERVAL": 300,
     "DEAD_INTERVAL": 300,
-    "SERIAL_CHECK_INTERVAL": 120,
+    "SERIAL_CHECK_INTERVAL": 45,
     "auth": {
       "username": "fiblab",
       "password": "fib10202"

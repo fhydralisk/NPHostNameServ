@@ -1,7 +1,6 @@
 import httplib
 import json
 import threading
-import time
 import socket
 import base64
 from utils import hs_log
@@ -21,7 +20,9 @@ class HostnamePassiveGetter(object):
             except Exception, e:
                 hs_log("unhandled exception %s in passive getter daemon" % str(e))
 
-            time.sleep(self.config["rpc_query_interval"])
+            evs = self.updater.serialUpdateEvent.wait(self.config["rpc_query_interval"])
+            if evs:
+                self.updater.serialUpdateEvent.clear()
 
     def get_passive_ips(self):
         passive_clients = self.updater.get_all_passive_clients()
