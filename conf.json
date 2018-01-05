@@ -23,7 +23,7 @@
   "DDNSServer": {
     "urls": {
       "get_client_url": "https://fib-lab.com:9273/dns/get_clients.do",
-      "update_url": "https://fib-lab.com:9273/dns/update_dns.do",
+      "update_url": "https://fib-lab.com:9273/dns/update_nsrecords.do",
       "get_serial": "https://fib-lab.com:9273/dns/get_serial.do"
     },
     "auth": {
