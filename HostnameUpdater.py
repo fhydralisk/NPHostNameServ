@@ -187,7 +187,7 @@ class HostnameUpdater(object):
 
         if self.hosts[client.get_hs_name()].update(client):
             # pull this host into update queue
-            self._put_into_update_queue(self.hosts[client.get_hs_name])
+            self._put_into_update_queue(self.hosts[client.get_hs_name()])
         return True
 
     def run_checker(self):
