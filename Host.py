@@ -85,7 +85,7 @@ class Host(object):
         :param client: The last client.
         :return: If ip is updated, return True, otherwise False.
         """
-        new_ip = client.client.get_address()["ip"]
+        new_ip = client.get_address()["ip"]
         self.lastClient = client
         self.lastUpdate = time.time()
         if self.lastIp != new_ip:
