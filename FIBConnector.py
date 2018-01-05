@@ -1,4 +1,5 @@
 import urllib2, base64, json
+from utils import hs_log
 
 
 class FIBConnector(object):
@@ -26,11 +27,19 @@ class FIBConnector(object):
         Get all clients.
         :return: All clients if succeed, otherwise None
         """
-        client_config = self.get_response(self.url_get_client)
-        return client_config
+        try:
+            client_config = self.get_response(self.url_get_client)
+            return client_config
+        except Exception, e:
+            hs_log("Unexpected exception in get_clients: %s" % str(e))
+            return None
 
     def get_serial(self):
-        return self.get_response(self.url_get_serial)
+        try:
+            return self.get_response(self.url_get_serial)
+        except Exception, e:
+            hs_log("Unexpected exception in get_serial: %s" % str(e))
+            return None
 
     def update_dns(self, names, ips):
         if len(names) != len(ips):
@@ -41,5 +50,6 @@ class FIBConnector(object):
             req_str = "?names=%s&ips=%s" % ('|'.join(names), '|'.join(ips))
             result = self.get_response(self.url_update_dns + req_str)
             return result
-        except:
+        except Exception, e:
+            hs_log("Unexpected exception in update_dns: %s" % str(e))
             return None

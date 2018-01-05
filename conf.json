@@ -22,9 +22,9 @@
   },
   "DDNSServer": {
     "urls": {
-      "get_client_url": "https://166.111.64.77:9273/dns/get_clients.do",
-      "update_url": "https://166.111.64.77:9273/dns/update_dns.do",
-      "get_serial": "https://166.111.64.77:9273/dns/get_serial.do"
+      "get_client_url": "https://fib-lab.com:9273/dns/get_clients.do",
+      "update_url": "https://fib-lab.com:9273/dns/update_dns.do",
+      "get_serial": "https://fib-lab.com:9273/dns/get_serial.do"
     },
     "auth": {
       "username": "fibnsserver",
