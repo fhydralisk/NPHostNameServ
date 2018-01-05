@@ -4,45 +4,40 @@ import threading
 import time
 import socket
 import base64
-from Hslog import hs_log
+from utils import hs_log
 from HostClient import HostClient
 
 
 class HostnamePassiveGetter(object):
-    def __init__(self, mapfile, updater):
-        with open(mapfile) as mpf:
-            self.config = json.load(mpf)["config"]["PassiveGetter"]
+    def __init__(self, config, updater):
+        self.config = config
         self.updater = updater
         self.daemonThread = None
 
-    def daemon(self):
-
+    def _daemon(self):
         while True:
             try:
+                self.get_passive_ips()
                 time.sleep(self.config["rpc_query_interval"])
-                self.query_for_dead_offline()
             except Exception, e:
                 hs_log("unhandled exception %s in passive getter daemon" % str(e))
 
-    def query_for_dead_offline(self):
-        host_status = self.updater.get_host_status()
-        mac_host_offline = {k: v["mac_address_maybe"]
-                            for k, v in host_status.items()
-                            if "mac_address_maybe" in v and v["Status"] != "Online"}
-
-        if len(mac_host_offline) == 0:
-            return
+    def get_passive_ips(self):
+        passive_clients = self.updater.get_all_passive_clients()
+        macs = [client.validateMac[0] for client in passive_clients]
 
         try:
-            results = json.loads(self.rpc_http_get("/?mac=%s" % ",".join([e[0] for e in mac_host_offline.values()]),
+            results = json.loads(self.rpc_http_get("/?mac=%s" % ",".join(macs),
                                                    self.config["rpc_hostname"],
                                                    self.config["rpc_port"], None,
                                                    self.config["rpc_timeout"]))
-            for i in range(len(mac_host_offline)):
-                result = results["Result"][i]
-                if isinstance(result, dict):
+
+            ips = results["Result"]
+            for client, ip_ts in zip(passive_clients, ips):
+                if isinstance(ip_ts, dict):
                     self.updater.handle_client_heartbeat(
-                        HostClient((result.keys()[0], 1234), mac_host_offline.keys()[i], mac=mac_host_offline.values()[i][0])
+                        HostClient((ip_ts.keys()[0], 1234), client.name, mac=client.validateMac),
+                        is_proactive=False
                     )
         except ValueError:
             hs_log("Cannot parse json result of passive getter rpc")
@@ -53,7 +48,7 @@ class HostnamePassiveGetter(object):
 
     def run_getter(self):
         if self.daemonThread is None:
-            self.daemonThread = threading.Thread(target=self.daemon)
+            self.daemonThread = threading.Thread(target=self._daemon)
             self.daemonThread.setDaemon(True)
             self.daemonThread.start()
 

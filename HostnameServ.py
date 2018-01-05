@@ -1,20 +1,10 @@
-import os
-import sys
 import json
 import base64
 
 import BaseHTTPServer
 from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
-from HostnameUpdater import HostnameUpdater
 from HostClient import HostClient
-from HostnamePassiveGetter import HostnamePassiveGetter
-
-from Hslog import hs_log
-
-
-def print_usage():
-    print "Usage:"
-    print "HostnameServ.py Port HostNameFile Deamon"
+from utils import hs_log
 
 
 class HostnameServer(HTTPServer):
@@ -29,7 +19,7 @@ class HostnameServer(HTTPServer):
         BaseHTTPServer.HTTPServer.finish_request(self, request, client_address)
 
     def handle_hs_message(self, client):
-        self.updater.handle_client_heartbeat(client)
+        self.updater.handle_client_heartbeat(client, is_proactive=True)
 
     def handle_wol_message(self, hs_name):
         return self.updater.handle_wol_message(hs_name)
@@ -135,59 +125,6 @@ class HostnameRequestHandler(BaseHTTPRequestHandler):
                         }
 
                     self.wfile.write(json.dumps(ret_rpc, sort_keys=True, indent=4, separators=(',', ': ')))
-            elif p2.startswith("wol.do?name="):
-                hs_name = p2.replace("wol.do?name=", "")
-                hs_log("Trying to wake %s" % hs_name)
-                result = self.server.handle_wol_message(hs_name)
-                if result:
-                    self.write_common_header(content_type="application/json")
-                    self.wfile.write(json.dumps(result, sort_keys=True, indent=4, separators=(',', ': ')))
-                else:
-                    self.send_error(404)
 
             else:
                 self.send_error(404)
-
-
-def deamon():
-    if os.fork() > 0:
-        sys.exit(0)
-
-    os.setsid()
-    os.chdir("/")
-    os.umask(0)
-
-    if os.fork() > 0:
-        sys.exit(0)
-
-    sys.stdout.flush()
-    sys.stderr.flush()
-
-    si = file('/dev/null', 'r')
-    so = file('/dev/null', 'a+')
-    serr = file('/dev/null', 'a+')
-    os.dup2(si.fileno(), sys.stdin.fileno())
-    os.dup2(so.fileno(), sys.stdout.fileno())
-    os.dup2(serr.fileno(), sys.stderr.fileno())
-
-if len(sys.argv) != 4:
-    print_usage()
-    exit(1)
-
-port = int(sys.argv[1])
-mapFile = sys.argv[2]
-deamonlize = sys.argv[3]
-if deamonlize.upper() == "TRUE" or deamonlize.upper() == "YES" or deamonlize == "1":
-    deamon()
-
-updater = HostnameUpdater(mapFile)
-updater.run_updater(restart=False)
-passiveGetter = HostnamePassiveGetter(mapFile, updater)
-passiveGetter.run_getter()
-hostServer = HostnameServer(updater, ('', port), HostnameRequestHandler)
-hs_log("Starting HostnameServer...")
-try:
-    hostServer.serve_forever()
-except:
-    hs_log("HostnameServ deamon unexceptly stopped.")
-    sys.exit(3)

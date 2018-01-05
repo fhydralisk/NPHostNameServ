@@ -1,0 +1,56 @@
+{
+  "hostmap": {
+    "esxi1@b1": {
+      "DNS": [
+        {
+          "Hostname": "esxi1.nopqzip.com",
+          "Profile": "dyn_flhy0218"
+        }
+      ],
+      "Script": [
+        {
+          "Profile": "Echo",
+          "Param": "esxi1"
+        }
+      ],
+      "Validate": {
+        "MAC": [
+          "b4:b5:2f:39:a0:74"
+        ]
+      }
+    }
+  },
+  "DDNSServer": {
+    "urls": {
+      "get_client_url": "https://166.111.64.77:9273/dns/get_clients.do",
+      "update_url": "https://166.111.64.77:9273/dns/update_dns.do",
+      "get_serial": "https://166.111.64.77:9273/dns/get_serial.do"
+    },
+    "auth": {
+      "username": "fibnsserver",
+      "password": "fib10202"
+    }
+  },
+  "Updater" : {
+    "DNS_BATCH_UPDATE_INTERVAL": 15,
+    "GOOD_REFRESH_INTERVAL": 36000,
+    "BAD_RETRY_INTERVAL": 300,
+    "PENDING_RETRY_INTERVAL": 300,
+    "DEAD_INTERVAL": 300,
+    "SERIAL_CHECK_INTERVAL": 120,
+    "auth": {
+      "username": "fiblab",
+      "password": "fib10202"
+    }
+  },
+  "PassiveGetter": {
+    "rpc_hostname": "odls.nopqzip.com",
+    "rpc_port": 8111,
+    "rpc_timeout": 1.0,
+    "rpc_query_interval": 100
+  },
+  "config": {
+    "port": 8123,
+    "Daemon": "FALSE"
+  }
+}
