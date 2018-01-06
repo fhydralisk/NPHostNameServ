@@ -23,7 +23,7 @@ class RemoteMacAddrGetter(object):
         """
         try:
             resp = urllib2.urlopen("%s?ip=%s" % (self.config["rpc_url"], ip), timeout=1)
-            resp_obj = json.dumps(resp.read())
+            resp_obj = json.loads(resp.read())
             if resp_obj["Result"] == "OK":
                 return resp_obj["MAC"]
         except Exception, e:
