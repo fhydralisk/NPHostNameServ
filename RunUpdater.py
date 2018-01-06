@@ -59,7 +59,7 @@ updater = HostnameUpdater(updater_config, connector)
 updater.run_updater(restart=False)
 passiveGetter = HostnamePassiveGetter(passive_getter_config, updater)
 passiveGetter.run_getter()
-hostServer = HostnameServer(updater, ('', config["port"]), HostnameRequestHandler)
+hostServer = HostnameServer(updater, config, ('', config["port"]), HostnameRequestHandler)
 hs_log("Starting HostnameServer...")
 try:
     hostServer.serve_forever()

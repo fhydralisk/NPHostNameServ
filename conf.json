@@ -37,11 +37,7 @@
     "BAD_RETRY_INTERVAL": 300,
     "PENDING_RETRY_INTERVAL": 300,
     "DEAD_INTERVAL": 300,
-    "SERIAL_CHECK_INTERVAL": 45,
-    "auth": {
-      "username": "fiblab",
-      "password": "fib10202"
-    }
+    "SERIAL_CHECK_INTERVAL": 45
   },
   "PassiveGetter": {
     "rpc_hostname": "odls.nopqzip.com",
@@ -51,6 +47,10 @@
   },
   "config": {
     "port": 8123,
-    "Daemon": "FALSE"
+    "Daemon": "FALSE",
+    "auth": {
+      "username": "fiblab",
+      "password": "fib10202"
+    }
   }
 }

@@ -9,8 +9,9 @@ from utils import hs_log
 
 class HostnameServer(HTTPServer):
 
-    def __init__(self, upd, *args, **kwargs):
+    def __init__(self, upd, config, *args, **kwargs):
         self.updater = upd
+        self.config = config
         HTTPServer.__init__(self, *args, **kwargs)
 
     def finish_request(self, request, client_address):
@@ -29,8 +30,7 @@ class HostnameServer(HTTPServer):
         return True
 
     def auth(self, user, passwd):
-        config = self.updater.get_config()
-        if user == config["auth"]["username"] and passwd == config["auth"]["password"]:
+        if user == self.config["auth"]["username"] and passwd == self.config["auth"]["password"]:
             return True
 
         return False
