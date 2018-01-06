@@ -33,6 +33,14 @@ def daemon():
     os.dup2(serr.fileno(), sys.stderr.fileno())
 
 
+def instance_mac_getter(config):
+    module_name = ".".join(config["GetterClass"].split(".")[:-1])
+    class_name = config["GetterClass"].split(".")[-1]
+    module = __import__(module_name)
+    class_ = getattr(module, class_name)
+    return class_(config)
+
+
 if len(sys.argv) < 2:
     print_usage()
     exit(1)
@@ -45,6 +53,7 @@ with open(configFile) as cf:
     ddns_connector_config = c_entire["DDNSServer"]
     updater_config = c_entire["Updater"]
     config = c_entire["config"]
+    mac_getter_config = c_entire["MacGetter"]
 
 if len(sys.argv) == 3:
     daemonlize = sys.argv[2]
@@ -59,7 +68,13 @@ updater = HostnameUpdater(updater_config, connector)
 updater.run_updater(restart=False)
 passiveGetter = HostnamePassiveGetter(passive_getter_config, updater)
 passiveGetter.run_getter()
-hostServer = HostnameServer(updater, config, ('', config["port"]), HostnameRequestHandler)
+hostServer = HostnameServer(
+    updater,
+    instance_mac_getter(mac_getter_config),
+    config,
+    ('', config["port"]),
+    HostnameRequestHandler
+)
 hs_log("Starting HostnameServer...")
 try:
     hostServer.serve_forever()

@@ -45,6 +45,10 @@
     "rpc_timeout": 1.0,
     "rpc_query_interval": 100
   },
+  "MacGetter": {
+    "GetterClass": "RemoteMacAddrGetter.RemoteMacAddrGetter",
+    "rpc_url": "http://166.111.64.77:8127/get_mac.do"
+  },
   "config": {
     "port": 8123,
     "Daemon": "FALSE",

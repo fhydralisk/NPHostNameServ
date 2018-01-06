@@ -2,13 +2,13 @@ import commands
 
 
 class HostClient(object):
-    def __init__(self, address, hs_name, resolve_mac=False, mac=None):
+    def __init__(self, address, hs_name, mac_resolver=None, mac=None):
         self.ip = address[0]
         self.port = address[1]
         self.hs_name = hs_name
         self.mac = mac
-        if resolve_mac:
-            self.mac = self.resolve_mac(self.ip)
+        if mac_resolver is not None:
+            self.mac = self.resolve_mac(self.ip, mac_resolver)
 
     def get_address(self):
         ret = {
@@ -23,16 +23,11 @@ class HostClient(object):
         return self.hs_name
 
     @staticmethod
-    def resolve_mac(ip):
-        # TODO: shall CHECK whether in same subnet first
-        status, output = commands.getstatusoutput("arp -an |grep '(%s)'|awk -F' ' '{print $4}'" % ip)
-        if status != 0:
-            return None
-
-        if len(output.split(':')) != 6:
-            return None
-
-        return output
+    def resolve_mac(ip, mac_resolver):
+        return mac_resolver.get_mac_of_ip(ip)
 
     def __eq__(self, other):
-        return isinstance(other, self.__class__) and self.ip == other.ip and self.hs_name == other.hs_name and self.mac == other.mac
+        return isinstance(other, self.__class__) and \
+               self.ip == other.ip and \
+               self.hs_name == other.hs_name and \
+               self.mac == other.mac

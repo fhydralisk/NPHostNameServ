@@ -9,8 +9,9 @@ from utils import hs_log
 
 class HostnameServer(HTTPServer):
 
-    def __init__(self, upd, config, *args, **kwargs):
+    def __init__(self, upd, mac_getter, config, *args, **kwargs):
         self.updater = upd
+        self.mac_getter = mac_getter
         self.config = config
         HTTPServer.__init__(self, *args, **kwargs)
 
@@ -95,7 +96,11 @@ class HostnameRequestHandler(BaseHTTPRequestHandler):
             if p2.startswith('?name='):
                 hs_name = p2.replace("?name=", "")
                 try:
-                    self.server.handle_hs_message(HostClient(self.client_address, hs_name, resolve_mac=True))
+                    self.server.handle_hs_message(HostClient(
+                        self.client_address,
+                        hs_name,
+                        mac_resolver=self.server.mac_getter
+                    ))
                 except NameError:
                     hs_log("Nonexist user %s attempt to update ip address %s" % (hs_name, self.client_address[0]))
                     self.send_error(404)
