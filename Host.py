@@ -88,6 +88,7 @@ class Host(object):
         new_ip = client.get_address()["ip"]
         self.lastClient = client
         self.lastUpdate = time.time()
+        self.status = Host.STATE_ACTIVE
         if self.lastIp != new_ip:
             self.lastIp = new_ip
             return True
@@ -117,14 +118,15 @@ class Host(object):
         :param pending_retry_interval: the interval of retry if stay pending
         :return: True if shall update, otherwise false
         """
-        if self.update_state == Host.STATE_UPDATE_OK and time.time() - self.last_ns_update > good_refresh_interval:
-            return True
+        if self.status == Host.STATE_ACTIVE:
+            if self.update_state == Host.STATE_UPDATE_OK and time.time() - self.last_ns_update > good_refresh_interval:
+                return True
 
-        if self.update_state == Host.STATE_UPDATE_BAD and time.time() - self.last_ns_update > bad_retry_interval:
-            return True
+            if self.update_state == Host.STATE_UPDATE_BAD and time.time() - self.last_ns_update > bad_retry_interval:
+                return True
 
-        if self.update_state == Host.STATE_UPDATE_PENDING and time.time() - self.last_try_ns_update > pending_retry_interval:
-            # Pending state too long, not expected.
-            return True
+            if self.update_state == Host.STATE_UPDATE_PENDING and time.time() - self.last_try_ns_update > pending_retry_interval:
+                # Pending state too long, not expected.
+                return True
 
         return False

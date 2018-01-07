@@ -77,6 +77,7 @@ class HostnameUpdater(object):
         try:
             if host not in self._cache_update:
                 self._cache_update.append(host)
+                hs_log("Host %s has been put into updating queue." % host.name)
         except Exception, e:
             hs_log("Uncaught exception " + str(e) + " when queueing update host")
         finally:
