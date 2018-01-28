@@ -24,7 +24,8 @@
     "urls": {
       "get_client_url": "https://fib-lab.com:9273/dns/get_clients.do",
       "update_url": "https://fib-lab.com:9273/dns/update_nsrecords.do",
-      "get_serial": "https://fib-lab.com:9273/dns/get_serial.do"
+      "get_serial": "https://fib-lab.com:9273/dns/get_serial.do",
+      "check_wol": "http://fib-lab.com:8100/monitor/scan_dns_wol.do"
     },
     "auth": {
       "username": "fibnsserver",
@@ -40,14 +41,14 @@
     "SERIAL_CHECK_INTERVAL": 45
   },
   "PassiveGetter": {
-    "rpc_hostname": "odls.nopqzip.com",
+    "rpc_hostname": "odls.server.fib-lab.com",
     "rpc_port": 8111,
     "rpc_timeout": 1.0,
     "rpc_query_interval": 100
   },
   "MacGetter": {
     "GetterClass": "RemoteMacAddrGetter.RemoteMacAddrGetter",
-    "rpc_url": "http://166.111.64.77:8127/get_mac.do"
+    "rpc_url": "http://router.asus.com:8127/get_mac.do"
   },
   "config": {
     "port": 8123,

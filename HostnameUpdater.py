@@ -127,6 +127,9 @@ class HostnameUpdater(object):
                             host.ns_setstate_bad_update("Unexpected exception" + str(e))
                         hs_log("Unexpected exception " + str(e) + " occurred in DNS perform update thread.")
 
+    def _check_wol_ns(self):
+        self.connector.check_wol()
+
     def _thread_host_checker(self):
         """
         This thread checks:
@@ -141,6 +144,8 @@ class HostnameUpdater(object):
             event_is_set = self.checkerTerminateEvent.wait(self.checkInterval)
             if event_is_set:
                 break
+
+            self._check_wol_ns()
 
             try:
                 # Check DNS and State

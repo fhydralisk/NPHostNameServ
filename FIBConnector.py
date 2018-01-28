@@ -10,6 +10,7 @@ class FIBConnector(object):
         self.url_get_client = config["urls"]["get_client_url"]
         self.url_update_dns = config["urls"]["update_url"]
         self.url_get_serial = config["urls"]["get_serial"]
+        self.url_check_wol = config["urls"]["check_wol"]
         self.auth = config["auth"]
 
     def get_response(self, url, data=None, should_auth=True, timeout=10):
@@ -52,4 +53,12 @@ class FIBConnector(object):
             return result
         except Exception, e:
             hs_log("Unexpected exception in update_dns: %s" % str(e))
+            return None
+
+    def check_wol(self):
+        try:
+            resp = self.get_response(self.url_check_wol, should_auth=False)
+            return resp
+        except Exception, e:
+            hs_log("Unexpected exception in check_wol: %s" % str(e))
             return None
